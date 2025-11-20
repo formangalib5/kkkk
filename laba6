@@ -1,0 +1,230 @@
+#include <iostream>
+#include <cstdlib>
+#include <clocale>
+
+// функции
+
+
+//вывод матрицы
+void printMatrix(int** matrix, int rows, int cols) 
+{
+    for (int i = 0; i < rows; i++) 
+    {
+        for (int j = 0; j < cols; j++)
+        {
+        std::cout << matrix[i][j] << "\t";
+        }
+        std::cout << std::endl;
+    }
+}
+
+//нахождения строк с нулевыми элементами
+int* findZeroRows(int** matrix, int rows, int cols, int& zeroCount)
+{
+    zeroCount = 0;
+
+    //количество строк с нулями
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < cols; j++)
+        {
+            if (matrix[i][j] == 0) 
+            {
+                zeroCount++;
+                break; 
+            }
+        }
+    }
+
+    //выделяем память для индексов строк
+    int* zeroRows = (int*)malloc(zeroCount * sizeof(int));
+
+    // Заполняем массив индексами строк с нулями
+    int p = 0;
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < cols; j++) 
+        {
+            if (matrix[i][j] == 0)
+            {
+                zeroRows[p++] = i;
+                break;
+            }
+        }
+    }
+
+    return zeroRows;
+}
+
+//удаление строк из матрицы
+int** removeRows(int** matrix, int rows, int cols, int* rowsToRemove, int removeCount)
+{
+
+    // Создаем новую матрицу с уменьшенным количеством строк
+    int newRows = rows - removeCount;
+    int** newMatrix = (int**)malloc(newRows * sizeof(int*));
+
+    // Копируем строки, которые не нужно удалять
+    int newIndex = 0;
+    for (int i = 0; i < rows; i++)
+    {
+        bool shouldRemove = false;
+        for (int j = 0; j < removeCount; j++) {
+            if (i == rowsToRemove[j]) {
+                shouldRemove = true;
+                break;
+            }
+        }
+
+        if (!shouldRemove) {
+            newMatrix[newIndex] = (int*)malloc(cols * sizeof(int));
+            for (int k = 0; k < cols; k++) {
+                newMatrix[newIndex][k] = matrix[i][k];
+            }
+            newIndex++;
+        }
+    }
+
+    return newMatrix;
+}
+
+
+
+//основа 1,2
+int main()
+{
+
+    setlocale(LC_ALL, "Russian");
+
+    std::cout << "Пункт 1" << std::endl;
+
+    //начальная матрица
+    int** fm = (int**)malloc(2 * sizeof(int*));
+    for (int i = 0; i < 2; i++)
+    {
+        fm[i] = (int*)malloc(2 * sizeof(int));
+    }
+
+    int A, B, C, D;
+
+    do
+    {
+        std::cout << "Введите A (неотрицательное): ";
+        std::cin >> A;
+        if (A < 0) std::cout << "Ошибка! A должно быть неотрицательным." << std::endl;
+    } while (A < 0);
+
+    do
+    {
+        std::cout << "Введите B (неотрицательное): ";
+        std::cin >> B;
+        if (B < 0) std::cout << "Ошибка! B должно быть неотрицательным." << std::endl;
+    } while (B < 0);
+
+    std::cout << "Введите C: ";
+    std::cin >> C;
+    std::cout << "Введите D: ";
+    std::cin >> D;
+
+    fm[0][0] = A;
+    fm[0][1] = B;
+    fm[1][0] = C;
+    fm[1][1] = D;
+
+    std::cout << "начальная матрица:" << std::endl;
+    printMatrix(fm, 2, 2);
+
+    //расширенная матрица
+    int nrows = 2 + A;
+    int ncols = 2 + B; 
+
+    int** bm = (int**)malloc(nrows * sizeof(int*));
+    for (int i = 0; i < nrows; i++) 
+    {
+        bm[i] = (int*)malloc(ncols * sizeof(int));
+        for (int j = 0; j < ncols; j++) 
+        {
+            bm[i][j] = i * C + j * D;
+        }
+    }
+
+    std::cout << "расширенная матрица:" << std::endl;
+    printMatrix(bm, nrows, ncols);
+
+    //строки с нулевыми элементами
+    int zeroCount;
+    int* zeroRows = findZeroRows(bm, nrows, ncols, zeroCount);
+
+    if (zeroCount > 0) 
+    {
+        std::cout << "индекс строк с нулевыми элементами: ";
+        for (int i = 0; i < zeroCount; i++)
+        {
+            std::cout << zeroRows[i] << " ";
+        }
+        std::cout << std::endl;
+
+        // Удаляем строки с нулями
+        int** fm = removeRows(bm, nrows, ncols, zeroRows, zeroCount);
+        int finalRows = nrows - zeroCount;
+
+        std::cout << "матрица после удаления строк:" << std::endl;
+        printMatrix(fm, finalRows, ncols);
+
+        // Освобождаем память финальной матрицы
+        for (int i = 0; i < finalRows; i++) 
+        {
+            free(fm[i]);
+        }
+        free(fm);
+    }
+
+    // Освобождаем память
+    for (int i = 0; i < 2; i++) {
+        free(fm[i]);
+    }
+    free(fm);
+
+    for (int i = 0; i < nrows; i++) {
+        free(bm[i]);
+    }
+    free(bm);
+
+    if (zeroRows != nullptr) {
+        free(zeroRows);
+    }
+    
+
+
+
+
+
+    std::cout << "Пункт 2" << std::endl;
+
+    int a, b;
+
+    std::cout << "Введите значение a: ";
+    std::cin >> a;
+    std::cout << "Введите значение b: ";
+    std::cin >> b;
+
+    int *ptrA = new int;
+    int *ptrB = new int;
+
+    ptrA = &a;
+    ptrB = &b;
+
+    *ptrA *= 2;
+    std::cout << "После увеличения a в 2 раза: " << a << ", b = " << b << std::endl;
+
+    int cm = *ptrA;
+    *ptrA = *ptrB;
+    *ptrB = cm;
+
+    std::cout << "После обмена значений: a = " << a << ", b = " << b << std::endl;
+
+    delete ptrA;
+    delete ptrB;
+
+    return 0;
+}
